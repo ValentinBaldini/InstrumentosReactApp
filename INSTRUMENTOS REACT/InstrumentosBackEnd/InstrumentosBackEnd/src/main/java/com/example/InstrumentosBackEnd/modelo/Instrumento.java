@@ -29,7 +29,7 @@ public class Instrumento {
     String costoEnvio;
     @Column(name="cantidadVendida")
     String cantidadVendida;
-    @Column(name="descripcion")
+    @Column(name="descripcion", length = 1500)
     String descripcion;
 
     public Long getId() {
@@ -103,4 +103,5 @@ public class Instrumento {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+
 }

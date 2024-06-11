@@ -1,0 +1,19 @@
+.containerGrilla{
+    max-width: 1000px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+.table{
+    margin-top: 30px;
+    max-width: 1000px;
+}
+
+.h1Grilla{
+    font-size: 3em;
+    line-height: 1.1;
+    text-align: center;
+    font-family: 'raleway', sans-serif;
+    letter-spacing: 1rem;
+}

@@ -1,0 +1,14 @@
+.h1Home{
+    font-size: 3.2em;
+    line-height: 1.1;
+    text-align: center;
+    font-family: 'raleway', sans-serif;
+    letter-spacing: 1rem;
+}
+.pHome{
+    font-family: 'Bentham', serif;
+    font-size: 2em;
+    max-width: fit-content;
+    text-align: center;
+    margin-top: 20px;
+}

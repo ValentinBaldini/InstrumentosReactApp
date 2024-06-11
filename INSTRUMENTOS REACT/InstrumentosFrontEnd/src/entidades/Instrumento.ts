@@ -1,3 +1,5 @@
+import { ChangeEventHandler } from "react";
+
 export default class Instrumento {
     id: string="";
     instrumento: string = "";
@@ -8,4 +10,5 @@ export default class Instrumento {
     costoEnvio: string = "";
     cantidadVendida: string = "";
     descripcion: string = "";
+    addCarrito?:ChangeEventHandler;
 }

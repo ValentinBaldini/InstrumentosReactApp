@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mercadopago/sdk-react": "^0.0.19",
+    "@svgr/webpack": "^8.1.0",
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
     "react": "^18.2.0",

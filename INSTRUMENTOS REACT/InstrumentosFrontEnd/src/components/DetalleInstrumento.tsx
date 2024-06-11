@@ -2,48 +2,73 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Instrumento from "../entidades/Instrumento";
 import InstrumentoService from "../services/InstrumentoService";
+import icon from '../assets/arrow_back_24dp_FILL0_wght400_GRAD0_opsz24.svg';
+import './css/detalleInstrumento.css'
+import Navbar from "./navbar";
 
 const DetalleInstrumento = () => {
-    const {idInstrumento} = useParams();
-    const [instrumentos, setInstrumentos] = useState<Instrumento>();
+    const { idInstrumento } = useParams<{ idInstrumento: string }>();
+    const [instrumento, setInstrumento] = useState<Instrumento | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        InstrumentoService.getInstrumentosByID(Number(idInstrumento)).then(response => {
-            setInstrumentos(response.data);
-            console.log("Instrumentos cargados:", response.data);
-        }).catch(error => {
-            console.log(error);
-        })
+        InstrumentoService.getInstrumentosByID(Number(idInstrumento))
+            .then(response => {
+                setInstrumento(response.data);
+                console.log("Instrumentos cargados:", response.data);
+            })
+            .catch(error => {
+                console.error("Error al cargar los instrumentos:", error);
+                setError("Error al cargar los datos del instrumento");
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     }, [idInstrumento]);
-     
-    const  classEnvioText = instrumentos?.costoEnvio === "G" ? "envio-gratis" : "envio-costo";
-    const textEnvio = instrumentos?.costoEnvio === "G" ? "ENVIO GRATIS A TODO EL PAIS" : `Costo de envio: $${instrumentos?.costoEnvio}`;
+
+    if (loading) {
+        return <div>Cargando...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
+    }
+
+    if (!instrumento) {
+        return <div>No se encontró el instrumento.</div>;
+    }
+
+    const classEnvioText = instrumento.costoEnvio === "G" ? "envio-gratis" : "envio-costo";
+    const textEnvio = instrumento.costoEnvio === "G" ? (
+        <>
+          <img src="/img/camion.png" alt="Camión de envío" />
+          ENVIO GRATIS A TODO EL PAIS
+        </>
+      ) : `Costo de envio: $${instrumento.costoEnvio}`;
 
     return (
         <>
-            <div className='col-sm-6'>
-                <div className="wrapper">
-                    <div className="product-img">
-                        <img src={`/public/img/${instrumentos?.imagen}`} height="420" width="327" />
-                    </div>
-                    <div className="product-info">
-                        <div className="product-text">
-                            <h1>{instrumentos?.instrumento}</h1>
-                            <h2>{instrumentos?.marca}</h2>
-                            <h2>{instrumentos?.modelo}</h2>
-                            <p className='descripcion'>{instrumentos?.descripcion}</p>
-                            <p className={classEnvioText}>{textEnvio}</p>
-                            <button>Ver Detalle</button>
-                        </div>
-                        <div className="product-price-btn">
-                            <p>$<span>{instrumentos?.precio}</span></p>
-                            <button type="button">Agregar al Carrito</button>
-                        </div>
+        <Navbar></Navbar>
+        <a href="/productos" className="aDetalle"><div className="btnDetalleVolver"><button className="btn btn-info"><img src={icon} alt="icon" style={{ marginRight: '8px' }}/><a className="aDetalle">Volver</a></button></div></a>
+        <div className="detalle-instrumento-container">
+            <div className="detalle-instrumento">
+                <div className="imagen-container">
+                    <img src={`/img/${instrumento.imagen}`} alt={instrumento.instrumento} />
+                </div>
+                <div className="informacion-containerDetalle">
+                    <h1>{instrumento.instrumento}</h1>
+                    <h2>{instrumento.marca} - {instrumento.modelo}</h2>
+                    <p className='descripcionDetalle'>{instrumento.descripcion}</p>
+                    <p className={classEnvioText}>{textEnvio}</p>
+                    <div className="precio-container">
+                        <p className="precio">${instrumento.precio}</p>
                     </div>
                 </div>
             </div>
+        </div>
         </>
-    )
+    );
 }
 
-export default DetalleInstrumento
+export default DetalleInstrumento;
