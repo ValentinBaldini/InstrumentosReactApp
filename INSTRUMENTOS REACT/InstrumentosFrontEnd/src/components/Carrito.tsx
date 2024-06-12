@@ -7,20 +7,21 @@ import CheckoutMP from './CheckoutMP.tsx';
 import './css/carrito.css'
 import DetallePedido from '../entidades/DetallePedido.ts';
 
-function CartItem(item: Instrumento) {
-  console.log("Valor de item.costoEnvio:", item.costoEnvio);
-  const textEnvio = item.costoEnvio === 'G' ? '' : "+ costo envio";
+function CartItem({ item }: { item: DetallePedido }) {
+  const { instrumento } = item;
+  console.log("Valor de item.costoEnvio:", instrumento.costoEnvio);
+  const textEnvio = instrumento.costoEnvio === 'G' ? '' : "+ costo envio";
 
   return (
     <div key={item.id} className="item-container">
       <div className="item-content">
-        <img className="item-image" src={`/img/${item.imagen}`} alt={item.instrumento} />
+        <img className="item-image" src={`/img/${instrumento.imagen}`} alt={instrumento.instrumento} />
         <div className="item-details">
           <div className="item-name-price">
-            <strong>{item.instrumento}</strong> - ${item.precio}
+            <strong>{instrumento.instrumento}</strong> - ${instrumento.precio}
           </div>
           <div className="item-quantity">
-            <b>{item.cantidadVendida} {Number(item.cantidadVendida) === 1 ? 'unidad' : 'unidades'} </b>
+            <b>{instrumento.cantidadVendida} {Number(instrumento.cantidadVendida) === 1 ? 'unidad' : 'unidades'} </b>
             <b>{textEnvio}</b>
           </div>
         </div>
@@ -37,18 +38,18 @@ export default function Carrito() {
 
   const handleCheckout = async () => {
     try {
-      // Verificar si el carrito está vacío
       if (cart.length === 0) {
         alert("El carrito está vacío. Por favor, cargue los instrumentos al carrito.");
         return;
       }
-      // Guardar el pedido primero
+
       const nuevoPedido: Pedido = {
-        fechaPedido: new Date(), // Asignar la fecha actual
-        totalPedido: totalPedido // Usar el total del pedido del contexto
+        fechaPedido: new Date(),
+        totalPedido: totalPedido
       };
+
       const pedidoGuardado = await InstrumentoService.savePedido(nuevoPedido);
-      //Asignar el ID del pedido guardado a cada detalle del carrito
+      
       const detallesConPedido = cart.map(detalle => ({
         ...detalle,
         pedido: {
@@ -56,23 +57,23 @@ export default function Carrito() {
           fechaPedido: pedidoGuardado.fechaPedido,
           totalPedido: pedidoGuardado.totalPedido
         }
-
       }));
+
       setPedido(pedidoGuardado);
-      // Guardar los detalles del pedido
+
       const promises = detallesConPedido.map(async detalle => {
-        try { 
-            await InstrumentoService.saveDetallePedido<DetallePedido>(detalle);
+        try {
+          await InstrumentoService.saveDetallePedido(detalle);
         } catch (error) {
-            console.error("Error al guardar el detalle de pedido:", error);
-            throw error; // Lanza el error para manejarlo fuera del bucle
+          console.error("Error al guardar el detalle de pedido:", error);
+          throw error;
         }
-    });
-      console.log(result);
+      });
+
+      await Promise.all(promises);
 
       alert(`El pedido con id ${pedidoGuardado.id} se guardó correctamente`);
-      // Limpiar el carrito después de realizar el checkout
-      limpiarCarrito();
+      //limpiarCarrito();
     } catch (error) {
       console.error("Error al procesar el checkout:", error);
     }
@@ -83,9 +84,8 @@ export default function Carrito() {
       <aside className='cart'>
         <b>CARRITO</b>
         <ul>
-          {cart.map((ins: Instrumento, index) =>
-            <CartItem id={ins.id} instrumento={ins.instrumento} precio={ins.precio} key={index}
-              imagen={ins.imagen} marca={ins.marca} modelo={ins.modelo} cantidadVendida={ins.cantidadVendida} addCarrito={() => addCarrito(ins)} costoEnvio={ins.costoEnvio} descripcion={ins.descripcion} />
+        {cart.map((detalle: DetallePedido, index) =>
+            <CartItem key={index} item={detalle} />
           )}
         </ul>
         <div>

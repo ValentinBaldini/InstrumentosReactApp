@@ -44,17 +44,11 @@ public class PedidoControlador {
 
     @PutMapping("/pedidos/{id}")
     public void update(@PathVariable Long id, @RequestBody Pedido pedido) {
-        // Verificar si el instrumento con el ID dado existe en la base de datos
         Pedido existingPedido = pedidoServicioImpl.getById(id);
-        if (existingPedido != null) {
-            // Asignar el ID al instrumento que se va a actualizar
-            pedido.setId(id);
-
-            // Guardar el instrumento actualizado
+        if (existingPedido != null) { 
+            pedido.setId(id); 
             pedidoServicioImpl.save(pedido);
         } else {
-            // Si no se encuentra el instrumento con el ID dado, lanzar una excepción o
-            // manejar el error según sea necesario
             throw new RuntimeException("El pedido con ID " + id + " no existe.");
         }
     }

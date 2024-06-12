@@ -79,7 +79,7 @@ export function CarritoContextProvider({ children }: { children: ReactNode }) {
     };
 
     const calcularTotalCarrito = () => {
-        const total = cart.reduce((acc, item) => acc + item.instrumento.precio * item.cantidad, 0);
+        const total = cart.reduce((acc, item) => acc + Number(item.instrumento.precio) * item.cantidad, 0);
         setTotalPedido(total);
     };
 
@@ -107,7 +107,7 @@ export function CarritoContextProvider({ children }: { children: ReactNode }) {
             
     
             // Realizar una solicitud POST para guardar los detalles del pedido
-            await InstrumentoService.saveDetallePedido(detallesConPedido);
+            await InstrumentoService.saveDetallePedido(detallesConPedido[0]);
     
             // Limpiar el carrito después de enviar los datos
             limpiarCarrito();
