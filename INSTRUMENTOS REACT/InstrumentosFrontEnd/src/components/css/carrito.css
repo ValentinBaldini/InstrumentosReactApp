@@ -1,9 +1,9 @@
 .cart {
     position: fixed;
-    top: 20;
+    top: 10; /* Asegúrate de que el top esté correctamente configurado */
     right: 0;
     width: 300px;
-    height: 100%;
+    height: 100vh; /* Usa vh para asegurar que la altura cubra toda la ventana */
     background-color: #f9f9f9;
     box-shadow: -2px 0 5px rgba(0,0,0,0.1);
     padding: 20px;
@@ -45,15 +45,21 @@
     background-color: #0056b3;
 }
 
-.col{
+.col {
     margin-top: 100px;
     margin-right: 50px;
+    max-width: 20%;
+    position: fixed;
+    right: 0;
+    top: 0;
 }
 
 .col-10 {
-    flex: 0 0 auto;
-    width: 20%;
-    margin-left: 80px;
+    flex: auto;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
 }
 
 .btn-group {
@@ -126,10 +132,10 @@
     border-top: 1px solid #ddd;
 }
 
-.btn-limpiar{
+.btn-limpiar {
     background-color: #ce5d00;
 }
 
-.imgAddDelete{
+.imgAddDelete {
     color: #ffffff;
 }

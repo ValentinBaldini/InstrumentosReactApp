@@ -9,6 +9,7 @@ import com.example.InstrumentosBackEnd.servicio.PedidoServicioImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -27,29 +28,58 @@ public class PedidoDetalleControlador {
 
     @PostMapping("/detallePedidoAll")
     public List<PedidoDetalle> saveAll(@RequestBody List<PedidoDetalle> pedidoDetalles) {
+        List<PedidoDetalle> savedDetalles = new ArrayList<>();
+
         for (PedidoDetalle pedidoDetalle : pedidoDetalles) {
-            Pedido pedido = pedidoServicioImpl.getById(pedidoDetalle.getPedido().getId());
-            pedidoDetalle.setPedido(pedido);
+        // Obtener y asignar pedido
+        Pedido pedido = pedidoServicioImpl.getById(pedidoDetalle.getPedido().getId());
+        if (pedido == null) {
+            throw new IllegalArgumentException("Pedido no encontrado con ID: " + pedidoDetalle.getPedido().getId());
+        }
+        pedidoDetalle.setPedido(pedido);
 
-            Instrumento instrumento = instrumentoServiceImpl.getById(pedidoDetalle.getInstrumento().getId());
-            pedidoDetalle.setInstrumento(instrumento);
+        // Obtener y asignar instrumento
+        Instrumento instrumento = instrumentoServiceImpl.getById(pedidoDetalle.getInstrumento().getId());
+        if (instrumento == null) {
+            throw new IllegalArgumentException("Instrumento no encontrado con ID: " + pedidoDetalle.getInstrumento().getId());
+        }
+        pedidoDetalle.setInstrumento(instrumento);
 
-            // Update the sold quantity of the instrument
-            int nuevaCantidadVendida = Integer.parseInt(instrumento.getCantidadVendida()) + pedidoDetalle.getCantidad();
-            instrumento.setCantidadVendida(String.valueOf(nuevaCantidadVendida));
+        // Actualizar cantidad vendida del instrumento
+        int nuevaCantidadVendida = Integer.parseInt(instrumento.getCantidadVendida()) + pedidoDetalle.getCantidad();
+        instrumento.setCantidadVendida(String.valueOf(nuevaCantidadVendida));
+        instrumentoServiceImpl.save(instrumento);
 
-            instrumentoServiceImpl.save(instrumento);
+        // Guardar el detalle de pedido
+        PedidoDetalle savedDetalle = pedidoDetalleImpl.save(pedidoDetalle);
+        savedDetalles.add(savedDetalle);
         }
 
-        return pedidoDetalleImpl.saveAll(pedidoDetalles);
+        System.out.println(savedDetalles.toString());
+
+        return savedDetalles;
     }
 
     @PostMapping("/detallePedido")
-    public PedidoDetalle save(@RequestBody PedidoDetalle pedidoDetalle){
+    public PedidoDetalle save(@RequestBody PedidoDetalle pedidoDetalle) {
+        if (pedidoDetalle.getPedido() == null || pedidoDetalle.getPedido().getId() == null) {
+            throw new IllegalArgumentException("ID del pedido no debe ser nulo");
+        }
+
         Pedido pedido = pedidoServicioImpl.getById(pedidoDetalle.getPedido().getId());
+        if (pedido == null) {
+            throw new RuntimeException("Pedido no encontrado con ID: " + pedidoDetalle.getPedido().getId());
+        }
+        System.out.println("ID del Pedido: " + pedidoDetalle.getPedido().getId());
         pedidoDetalle.setPedido(pedido);
 
+        if (pedidoDetalle.getInstrumento() == null || pedidoDetalle.getInstrumento().getId() == null) {
+            throw new IllegalArgumentException("ID del instrumento no debe ser nulo");
+        }
         Instrumento instrumento = instrumentoServiceImpl.getById(pedidoDetalle.getInstrumento().getId());
+        if (instrumento == null) {
+            throw new RuntimeException("Instrumento no encontrado con ID: " + pedidoDetalle.getInstrumento().getId());
+        }
         pedidoDetalle.setInstrumento(instrumento);
 
         return pedidoDetalleImpl.save(pedidoDetalle);

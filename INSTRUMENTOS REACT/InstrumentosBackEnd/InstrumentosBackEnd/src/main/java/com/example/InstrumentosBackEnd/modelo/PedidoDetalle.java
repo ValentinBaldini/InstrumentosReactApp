@@ -1,8 +1,12 @@
 package com.example.InstrumentosBackEnd.modelo;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +17,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class PedidoDetalle {
+@Builder
+@EqualsAndHashCode
+public class PedidoDetalle implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,36 +36,4 @@ public class PedidoDetalle {
     @JoinColumn(name="id_pedido")
     @JsonBackReference
     private Pedido pedido;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getCantidad() {
-        return cantidad;
-    }
-
-    public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
-    }
-
-    public Instrumento getInstrumento() {
-        return instrumento;
-    }
-
-    public void setInstrumento(Instrumento instrumento) {
-        this.instrumento = instrumento;
-    }
-
-    public Pedido getPedido() {
-        return pedido;
-    }
-
-    public void setPedido(Pedido pedido) {
-        this.pedido = pedido;
-    }
 }

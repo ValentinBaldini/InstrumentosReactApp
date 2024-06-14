@@ -13,7 +13,6 @@ const CheckoutMP = ({montoTotal = 0}) => {
     const getPreferenceMP = async () => {
         if (montoTotal > 0) {
             const pedido = new Pedido();
-            pedido.id = 0;
             pedido.totalPedido = montoTotal;
             pedido.fechaPedido = new Date();
             try {
@@ -30,7 +29,7 @@ const CheckoutMP = ({montoTotal = 0}) => {
 
     return (
         <div>
-            <button className='btn btn-info' onClick={()=>getPreferenceMP()}>Pagar con MercadoPago</button>
+            <button className='btn btn-primary' onClick={()=>getPreferenceMP()}>Pagar con MercadoPago</button>
             <div>
             {idPreference && <Wallet initialization={{ preferenceId: idPreference }} />}
             </div>

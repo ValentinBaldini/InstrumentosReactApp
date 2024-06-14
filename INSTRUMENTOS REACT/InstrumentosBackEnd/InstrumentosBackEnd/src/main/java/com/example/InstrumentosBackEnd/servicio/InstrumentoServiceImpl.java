@@ -1,5 +1,6 @@
 package com.example.InstrumentosBackEnd.servicio;
 
+import com.example.InstrumentosBackEnd.modelo.Categoria;
 import com.example.InstrumentosBackEnd.modelo.Instrumento;
 import java.util.List;
 

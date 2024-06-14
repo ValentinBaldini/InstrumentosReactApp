@@ -1,13 +1,17 @@
 .containerGrilla{
-    max-width: 1000px;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* Ocupa toda la altura de la ventana para centrar verticalmente */
     text-align: center;
+    box-sizing: border-box;
 }
 
 .table{
-    margin-top: 30px;
-    max-width: 1000px;
+    width: 100%; /* Ajusta el ancho de la tabla según sea necesario */
+    max-width: 1000px; /* Limita el ancho máximo de la tabla */
+    margin: 0 auto; /* Centra la tabla horizontalmente */
 }
 
 .h1Grilla{

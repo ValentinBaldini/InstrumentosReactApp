@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import Instrumento from '../entidades/Instrumento.ts'
 import Pedido from '../entidades/Pedido.ts';
 import { useCarrito } from '../hooks/useCarrito.tsx'
 import InstrumentoService from '../services/InstrumentoService.ts';
 import CheckoutMP from './CheckoutMP.tsx';
 import './css/carrito.css'
 import DetallePedido from '../entidades/DetallePedido.ts';
+import Usuario from '../entidades/Usuario.ts';
+import { useNavigate } from 'react-router-dom';
 
 function CartItem({ item }: { item: DetallePedido }) {
   const { instrumento } = item;
-  console.log("Valor de item.costoEnvio:", instrumento.costoEnvio);
   const textEnvio = instrumento.costoEnvio === 'G' ? '' : "+ costo envio";
 
   return (
@@ -21,7 +21,7 @@ function CartItem({ item }: { item: DetallePedido }) {
             <strong>{instrumento.instrumento}</strong> - ${instrumento.precio}
           </div>
           <div className="item-quantity">
-            <b>{instrumento.cantidadVendida} {Number(instrumento.cantidadVendida) === 1 ? 'unidad' : 'unidades'} </b>
+            <b>{item.cantidad} {Number(item.cantidad) === 1 ? 'unidad' : 'unidades'} </b>
             <b>{textEnvio}</b>
           </div>
         </div>
@@ -33,8 +33,22 @@ function CartItem({ item }: { item: DetallePedido }) {
 
 export default function Carrito() {
 
-  const { cart, addCarrito, limpiarCarrito, totalPedido } = useCarrito();
+  const { cart, limpiarCarrito, totalPedido } = useCarrito();
   const [pedido, setPedido] = useState<Pedido | null>(null);
+  const navigate = useNavigate();
+
+  //Traigo el usuario logueado
+  const [jsonUsuario] = useState<any>(localStorage.getItem('usuario'));
+  const usuarioLogueado: Usuario = JSON.parse(jsonUsuario) as Usuario;
+
+  const navigateLogin = () => {
+    navigate('/login', {
+      replace: true,
+      state: {
+        logged: false
+      },
+    });
+  }
 
   const handleCheckout = async () => {
     try {
@@ -43,34 +57,27 @@ export default function Carrito() {
         return;
       }
 
+      // Primero guarda el pedido
       const nuevoPedido: Pedido = {
         fechaPedido: new Date(),
         totalPedido: totalPedido
       };
 
       const pedidoGuardado = await InstrumentoService.savePedido(nuevoPedido);
-      
-      const detallesConPedido = cart.map(detalle => ({
-        ...detalle,
+      setPedido(pedidoGuardado);
+
+      // Construye los detalles del pedido como DetallePedido[]
+      const detallesConPedido: DetallePedido[] = cart.map(detalle => ({
+        id: undefined, // Opcional, dependiendo de cómo se maneje en tu servicio
+        cantidad: detalle.cantidad,
+        instrumento: detalle.instrumento,
         pedido: {
-          id: pedidoGuardado.id,
-          fechaPedido: pedidoGuardado.fechaPedido,
-          totalPedido: pedidoGuardado.totalPedido
+          id: pedidoGuardado.id // Asigna el id del pedido guardado
         }
       }));
 
-      setPedido(pedidoGuardado);
-
-      const promises = detallesConPedido.map(async detalle => {
-        try {
-          await InstrumentoService.saveDetallePedido(detalle);
-        } catch (error) {
-          console.error("Error al guardar el detalle de pedido:", error);
-          throw error;
-        }
-      });
-
-      await Promise.all(promises);
+      // Guarda todos los detalles del pedido utilizando la función que espera un arreglo
+      await InstrumentoService.saveAllDetallePedido(detallesConPedido);
 
       alert(`El pedido con id ${pedidoGuardado.id} se guardó correctamente`);
       //limpiarCarrito();
@@ -84,7 +91,7 @@ export default function Carrito() {
       <aside className='cart'>
         <b>CARRITO</b>
         <ul>
-        {cart.map((detalle: DetallePedido, index) =>
+          {cart.map((detalle: DetallePedido, index) =>
             <CartItem key={index} item={detalle} />
           )}
         </ul>
@@ -100,11 +107,19 @@ export default function Carrito() {
         </button>
         <br></br>
         <br></br>
-        <button className="btn btn-warning" onClick={() => handleCheckout()}>
-            Comprar
-          </button>
-        {pedido && 
-          <CheckoutMP montoTotal={totalPedido}></CheckoutMP>}
+        {
+          (usuarioLogueado)
+            ? <button className="btn btn-success" onClick={() => handleCheckout()}>
+              Realizar Compra
+            </button>
+            : <button className="btn btn-success" onClick={() => navigateLogin()}>
+              Realizar Compra
+            </button>
+
+        }
+        {pedido &&
+          <CheckoutMP montoTotal={totalPedido}></CheckoutMP>
+        }
       </aside>
     </>
   )

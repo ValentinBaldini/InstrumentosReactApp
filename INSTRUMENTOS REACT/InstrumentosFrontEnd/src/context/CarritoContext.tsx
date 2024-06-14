@@ -1,4 +1,4 @@
-import { ReactNode, createContext, useEffect, useState } from 'react'
+import { ReactNode, createContext, useEffect, useState } from 'react';
 import Instrumento from '../entidades/Instrumento';
 import DetallePedido from '../entidades/DetallePedido';
 import Pedido from '../entidades/Pedido';
@@ -31,13 +31,7 @@ export function CarritoContextProvider({ children }: { children: ReactNode }) {
     }, [cart]);
 
     const addCarrito = (product: Instrumento) => {
-        let existe = false;
-        cart.forEach(element => {
-            if (element.instrumento.id === product.id) {
-                existe = true;
-                return existe;
-            }
-        });
+        const existe = cart.some(item => item.instrumento.id === product.id);
 
         if (existe) {
             const cartClonado = cart.map(item =>
@@ -79,37 +73,34 @@ export function CarritoContextProvider({ children }: { children: ReactNode }) {
     };
 
     const calcularTotalCarrito = () => {
-        const total = cart.reduce((acc, item) => acc + Number(item.instrumento.precio) * item.cantidad, 0);
+        const total = cart.reduce((acc, item) => {
+            const precioItem = Number(item.instrumento.precio) * item.cantidad;
+            const costoEnvio = item.instrumento.costoEnvio === "G" ? 0 : Number(item.instrumento.costoEnvio) * item.cantidad;
+            return acc + precioItem + costoEnvio;
+        }, 0);
         setTotalPedido(total);
     };
 
     const handleCheckout = async () => {
         try {
-            // Crear un nuevo pedido
             const nuevoPedido: Pedido = {
                 fechaPedido: new Date(),
                 totalPedido: totalPedido
             };
-    
-            // Realizar una solicitud POST para guardar el pedido
+
             const pedidoGuardado = await InstrumentoService.savePedido(nuevoPedido);
-    
-            // Asignar el ID del pedido guardado a cada detalle de pedido en el carrito
+
             const detallesConPedido: DetallePedido[] = cart.map(detalle => ({
                 ...detalle,
-                cantidad : 0,
                 pedido: {
                     id: pedidoGuardado.id,
                     fechaPedido: pedidoGuardado.fechaPedido,
                     totalPedido: pedidoGuardado.totalPedido
                 }
             }));
-            
-    
-            // Realizar una solicitud POST para guardar los detalles del pedido
-            await InstrumentoService.saveDetallePedido(detallesConPedido[0]);
-    
-            // Limpiar el carrito después de enviar los datos
+
+            await Promise.all(detallesConPedido.map(detalle => InstrumentoService.saveDetallePedido(detalle)));
+
             limpiarCarrito();
         } catch (error) {
             console.error("Error al enviar los datos:", error);
@@ -119,7 +110,7 @@ export function CarritoContextProvider({ children }: { children: ReactNode }) {
     return (
         <CartContext.Provider value={{ cart, addCarrito, limpiarCarrito, removeCarrito, removeItemCarrito, totalPedido }}>
             {children}
-            {<button className="d-none" onClick={handleCheckout}>Enviar Datos</button>}
+            <button className="d-none" onClick={handleCheckout}>Enviar Datos</button>
         </CartContext.Provider>
     );
 }

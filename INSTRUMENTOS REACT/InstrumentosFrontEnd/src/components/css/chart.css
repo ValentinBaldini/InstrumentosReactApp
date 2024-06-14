@@ -1,0 +1,16 @@
+.chartContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    max-width: max-content;
+}
+
+.chartContainer > * {
+    margin-bottom: 20px; /* Espacio entre elementos */
+}
+
+.btn {
+    margin-top: 20px; /* Espacio sobre el botón */
+}

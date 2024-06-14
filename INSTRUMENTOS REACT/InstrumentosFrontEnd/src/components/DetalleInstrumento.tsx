@@ -12,6 +12,15 @@ const DetalleInstrumento = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const downloadPDF = async (idInstrumento: string) => {
+        try {
+            await InstrumentoService.downloadPDF(Number(idInstrumento));
+        } catch (error) {
+            console.error("Error al descargar el PDF:", error);
+            setError("Error al descargar el PDF");
+        }
+    };
+
     useEffect(() => {
         InstrumentoService.getInstrumentosByID(Number(idInstrumento))
             .then(response => {
@@ -59,6 +68,7 @@ const DetalleInstrumento = () => {
                 <div className="informacion-containerDetalle">
                     <h1>{instrumento.instrumento}</h1>
                     <h2>{instrumento.marca} - {instrumento.modelo}</h2>
+                    <h2>{instrumento.categoria?.denominacion}</h2>
                     <p className='descripcionDetalle'>{instrumento.descripcion}</p>
                     <p className={classEnvioText}>{textEnvio}</p>
                     <div className="precio-container">
@@ -67,6 +77,7 @@ const DetalleInstrumento = () => {
                 </div>
             </div>
         </div>
+        <button className="btn btn-danger" onClick={()=>downloadPDF(idInstrumento)}>Descargar PDF</button>
         </>
     );
 }

@@ -1,8 +1,15 @@
 package com.example.InstrumentosBackEnd.modelo;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
@@ -10,7 +17,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity
 @Table(name="instrumentos")
-public class Instrumento {
+@EqualsAndHashCode
+public class Instrumento implements Serializable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,76 +40,12 @@ public class Instrumento {
     @Column(name="descripcion", length = 1500)
     String descripcion;
 
-    public Long getId() {
-        return id;
-    }
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "id_categoria")
+    private Categoria categoria;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getInstrumento() {
-        return instrumento;
-    }
-
-    public void setInstrumento(String instrumento) {
-        this.instrumento = instrumento;
-    }
-
-    public String getMarca() {
-        return marca;
-    }
-
-    public void setMarca(String marca) {
-        this.marca = marca;
-    }
-
-    public String getModelo() {
-        return modelo;
-    }
-
-    public void setModelo(String modelo) {
-        this.modelo = modelo;
-    }
-
-    public String getImagen() {
-        return imagen;
-    }
-
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
-    }
-
-    public String getPrecio() {
-        return precio;
-    }
-
-    public void setPrecio(String precio) {
-        this.precio = precio;
-    }
-
-    public String getCostoEnvio() {
-        return costoEnvio;
-    }
-
-    public void setCostoEnvio(String costoEnvio) {
-        this.costoEnvio = costoEnvio;
-    }
-
-    public String getCantidadVendida() {
-        return cantidadVendida;
-    }
-
-    public void setCantidadVendida(String cantidadVendida) {
-        this.cantidadVendida = cantidadVendida;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
+    @OneToMany(mappedBy = "instrumento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private List<PedidoDetalle> detallesPedido = new ArrayList<>();
+    
 }
